@@ -2,6 +2,7 @@
 Video converter for 3DS
 
 I made this SW after trying some converters for 3DS but i failed to convert side by side videos to view stereoscopic with 3DS.
+
 This software is a simple front end for FFMPEG.
 
 Internally, It executes the following FFMPEG commands to convert a side by side video clip.
