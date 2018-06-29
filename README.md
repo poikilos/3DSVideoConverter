@@ -19,7 +19,7 @@ If the video is not  side by side, then just
 
 ffmpeg -y -i original.mp4  -ss 00:00:00 -t 00:10:00 -vcodec mjpeg -q:v 1 -r 20  -vf scale=480:240 -aspect 2:1 -acodec adpcm_ima_wav -ac 2 result.avi
 
-The converter write output files NIN_0001.AVI ~ NIN_00XX.AVI under the folder having the same name  with the input file name. the output files cropped to have only 10 minutes, because 3DS can't play wrong video clip.
+The converter writes output files NIN_0001.AVI ~ NIN_00XX.AVI under the folder having the same name  with the input file name. the output files cropped to have only 10 minutes, because 3DS can't play wrong video clip.
 
 Dependencies
 
