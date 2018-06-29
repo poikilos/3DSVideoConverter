@@ -1,6 +1,8 @@
 # 3DSVideoConverter
 Video converter for 3DS
 
+About this software
+
 I made this SW after trying some converters for 3DS but i failed to convert side by side videos to view stereoscopic with 3DS.
 
 This software is a simple front end for FFMPEG.
@@ -19,5 +21,9 @@ ffmpeg -y -i original.mp4  -ss 00:00:00 -t 00:10:00 -vcodec mjpeg -q:v 1 -r 20  
 
 The converter write output files NIN_0001.AVI ~ NIN_00XX.AVI under the folder having the same name  with the input file name. the output files cropped to have only 10 minutes, because 3DS can't play wrong video clip.
 
+Dependencies
+
+This software has been developped using IronPython 2.7.6.3 and Visual Studio 2015 Express.
+https://github.com/IronLanguages/ironpython2/releases/tag/ipy-2.7.6.3
 
   
