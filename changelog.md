@@ -5,6 +5,34 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [git] - 2020-04-30
 ### Removed
+- The 3DS icon is just noise!
+```
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch 3DS.ico" --prune-empty --tag-name-filter cat -- --all
+```
+- The xaml and project files are now useless bloat.
+```
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch Progress3D.xaml" --prune-empty --tag-name-filter cat -- --all
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch 3DSVideoConverter.xaml" --prune-empty --tag-name-filter cat -- --all
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch WizardDialog.xaml" --prune-empty --tag-name-filter cat -- --all
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch 3DSVideoConverter.sln" --prune-empty --tag-name-filter cat -- --all
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch 3DSVideoConverter.pyproj" --prune-empty --tag-name-filter cat -- --all
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch ipy.bat" --prune-empty --tag-name-filter cat -- --all
+git push origin --force --all
+```
+  - At first, the repo becomes 35.8 MB.
+  - After re-clone, it remains 35.8 MB.
+
+## [git] - 2020-04-30
+### Removed
+- makeExe.py
+```
+FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch makeExe.py" --prune-empty --tag-name-filter cat -- --all
+git push origin --force --all
+```
+
+
+## [git] - 2020-04-30
+### Removed
 - Including DLLs in the repo causes license issues.
 - Including ffmpeg and ffprobe is ridiculous--together they are 118.6MB.
 ```
@@ -67,6 +95,9 @@ FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm
 FILTER_BRANCH_SQUELCH_WARNING=1 find Lib -type f -exec git filter-branch --force --index-filter "git rm --cached --ignore-unmatch {}" --prune-empty --tag-name-filter cat -- --all \;
 ```
 - `git push origin --force --all`
+  - At first, the repo becomes 38.7 MB.
+  - After re-clone, it becomes 35.8 MB.
+
 
 ## [git] - 2020-04-30
 ### Added
