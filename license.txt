@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2018 JunHyeok Heo
+Copyright (c) 2018, 2020 JunHyeok Heo, Jake "Poikilos" Gustafson (For libraries, see license-*.txt files instead.)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
