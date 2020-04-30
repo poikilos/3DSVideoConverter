@@ -2,11 +2,6 @@ import sys
 
 gVersionStr = 'Version 0.1 2018/06/22'
 
-import clr
-clr.AddReference("IronPython.Wpf")
-import wpf
-
-clr.AddReference("StdLib")
 import os
 import subprocess
 import shlex
@@ -16,15 +11,6 @@ import time
 import math
 import shutil
 
-from Queue import Queue,Empty
-
-from System import Action
-from System.ComponentModel import BackgroundWorker, DoWorkEventHandler
-from System.Windows import Application, Window, Media, Shapes, FontWeight, Documents, TextWrapping, Media
-from System.Windows import Thickness, SizeToContent, DataFormats, HorizontalAlignment
-from System.Windows import Controls
-
-clr.AddReference("FontAwesome.WPF")
 from FontAwesome.WPF import *
 
 class AboutBox(Window) :
