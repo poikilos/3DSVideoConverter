@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [git] - 2020-04-30
+### Changed
+- Instead of using spaces then `shlex.split(command)`, make command a
+  list (in all cases).
+  - Remove space from `clipOpt`
+- Remove quotes from `leftFile`, `rightFile`, `outFile`
+  (add them later if necessary).
+- Use a `crops` dict instead of `if` statements for `leftOrRight`.
+
+## [git] - 2020-04-30
 ### Removed
 - The 3DS icon is just noise!
 ```
