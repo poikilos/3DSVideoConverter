@@ -1,7 +1,20 @@
 # 3DSVideoConverter
+<https://github.com/poikilos/3DSVideoConverter>
+
 Convert side-by-side stereoscopic videos to 3DS stereoscopic video format!
 
-## Original Author's Notes
+
+## Related Projects
+This is a fork of <https://github.com/jhheo/3DSVideoConverter>.
+
+### 3DS homebrew apps
+- https://github.com/Lectem/3Damnesic
+- https://github.com/halcy/nordlicht19 (This demo has several uses of
+  the 3DS screen but they are mostly related to realtime 3D rendering).
+
+## Developer Notes
+
+### Original Author's Notes
 
 I made this SW after trying some converters for 3DS but i failed to
 convert side by side videos to view stereoscopic with 3DS.

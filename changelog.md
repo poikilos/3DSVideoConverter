@@ -3,6 +3,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+
+## [git] - 2020-05-01
+### Added
+- `wget -O .gitignore https://github.com/github/gitignore/raw/master/Python.gitignore`
+
+### Changed
+- Convert to tkinter.
+- Handle the following keys of the `info` dict in tk-like ways:
+  `outfolder`, `bitrate`, `width`, `height`, `filename`, `seconds`
+- Make a "3DS" directory in the same directory as the video to avoid
+  filename collisions and confusion.
+
+
 ## [git] - 2020-04-30
 ### Changed
 - Instead of using spaces then `shlex.split(command)`, make command a
@@ -11,6 +24,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Remove quotes from `leftFile`, `rightFile`, `outFile`
   (add them later if necessary).
 - Use a `crops` dict instead of `if` statements for `leftOrRight`.
+
 
 ## [git] - 2020-04-30
 ### Removed
@@ -30,6 +44,7 @@ git push origin --force --all
 ```
   - At first, the repo becomes 35.8 MB.
   - After re-clone, it remains 35.8 MB.
+
 
 ## [git] - 2020-04-30
 ### Removed
@@ -102,7 +117,7 @@ gitlistobjectbysize.sh
 FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch OpenSourceLicenseTerms.txt" --prune-empty --tag-name-filter cat -- --all
 FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter "git rm --cached --ignore-unmatch OpenSourceLicenseTerms.txt" --prune-empty --tag-name-filter cat -- --all
 FILTER_BRANCH_SQUELCH_WARNING=1 find Lib -type f -exec git filter-branch --force --index-filter "git rm --cached --ignore-unmatch {}" --prune-empty --tag-name-filter cat -- --all \;
-```
+```/home/owner/Videos/YouTube-archive/3D/3D Amazing Spider-Man Compilation _ Side by Side SBS VR Active Passive-oef15b5Zi60.mp4
 - `git push origin --force --all`
   - At first, the repo becomes 38.7 MB.
   - After re-clone, it becomes 35.8 MB.

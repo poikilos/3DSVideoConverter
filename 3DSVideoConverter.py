@@ -9,12 +9,15 @@ from __future__ import print_function
 import sys
 import os
 import subprocess
-import shlex
 import re
 import string
 import time
 import math
 import shutil
+import argparse
+from mydialog import MyDialog
+
+gVersionStr = "Version 0.1 (Poikilos' 2020 tkinter fork)"
 
 try:
     input = raw_input
@@ -25,10 +28,12 @@ try:
     import Tkinter as tk
     import tkFont
     import ttk
+    import tkMessageBox as messagebox
 except ImportError:  # Python 3
     import tkinter as tk
     import tkinter.font as tkFont
     import tkinter.ttk as ttk
+    from tkinter import messagebox
 
 root = None
 ap = None
@@ -53,11 +58,22 @@ def init_args():
                     help=('SBS (Side By Side)'))
     ap.add_argument('--input', type=str,  default=None,
                     help=('Original video'))
-
+    print("Arguments: '''{}'''".format(ap.format_help()))
+    # print(dir(ap))
+    # print("argument_default: {}".format(ap.argument_default()))
+    # ^ TypeError: 'NoneType' object is not callable
+    # print("format_usage: {}".format(ap.format_usage()))
+    # ^ usage: 3DSVideoConverter.py
+    #   [-h] [--quality {VeryHigh,High,Standard,Low}]
+    #                       [--sbs] [--input INPUT]
+    print("get_default: {}".format(ap.get_default("quality")))
+    # ^ "Standard"
+    print("usage: {}".format(ap.usage))
+    # print("_optionals: {}".format(dir(ap._optionals)))
 
 def parse_args():
     args = ap.parse_args()
-    return args
+    return vars(args)
 
 
 # derived from upstream 3DSVideoConverter.xaml:
@@ -70,47 +86,19 @@ option_values["quality"]["Standard"] = 6
 option_values["quality"]["Low"] = 8
 
 
-class AboutBox(Window):
+class AboutBox(MyDialog):
     def __init__(self, parent):
         # wpf.LoadComponent(self, 'WizardDialog.xaml')
         f = open('license.txt')
         opl = f.read()
         f.close()
-        self.Title = "About"
-        self.SizeToContent = SizeToContent.WidthAndHeight
-        # self.WindowStartupLocation = WindowStartupLocation.Manual
-        self.Left = parent.Left + parent.ActualWidth/4
-        self.Top = parent.Top + parent.ActualHeight/4
-        stack = Controls.StackPanel()
-        sv = Controls.ScrollViewer()
-        sv.Width = 500
-        sv.Height = 300
-        tb = Controls.TextBlock()
-        # tb.FontSize = 16
-        tb.TextWrapping = TextWrapping.Wrap
-        r = Documents.Run(gVersionStr + '\n')
-        r.Foreground = Media.Brushes.Blue
-        tb.Inlines.Add(r)
-        r = Documents.Run('This software is created by JunHyeok Heo'
-                          ' (junek69@gmail.com)'
-                          ' and Jake "Poikilos" Gustafson\n')
-        r.Foreground = Media.Brushes.Blue
-        tb.Inlines.Add(r)
-        r = Documents.Run('under MIT License.\n')
-        r.Foreground = Media.Brushes.Blue
-        tb.Inlines.Add(r)
-        tb.Inlines.Add(opl)
-        sv.AddChild(tb)
-        stack.AddChild(sv)
-        btn = Controls.Button()
-        btn.Click += self.buttonClick
-        btn.Content = "Close"
-        btn.Width = 70
-        btn.Height = 30
-        btn.Margin = Thickness(0.0, 6.0, 0.0, 12.0)
-        stack.AddChild(btn)
-        self.Base.AddChild(stack)
-        self.ShowDialog()
+        # r = gVersionStr + '\n'
+        # r += ('This software is created by JunHyeok Heo'
+        #       ' (junek69@gmail.com)'
+        #       ' and Jake "Poikilos" Gustafson\n')
+        # r += ('under MIT License.\n')
+        MyDialog.__init__(self, parent, opl, btnNames=["Close"],
+                          args=None)
 
     def buttonClick(self, s, e):
         self.Close()
@@ -147,63 +135,21 @@ class BackGroundTask():
         return self.done
 
 
-class MyErrorMsgBox(Window):
-    def __init__(self, parent, msg):
-        wpf.LoadComponent(self, 'WizardDialog.xaml')
-        self.Title = "Error"
-        self.SizeToContent = SizeToContent.WidthAndHeight
-        # self.WindowStartupLocation = WindowStartupLocation.Manual
-        self.Left = parent.Left + parent.ActualWidth/4
-        self.Top = parent.Top + parent.ActualHeight/4
-        stack = Controls.StackPanel()
-        stack.Orientation = Controls.Orientation.Horizontal
-        stack.HorizontalAlignment = HorizontalAlignment.Center
-        stack.Margin = Thickness(10.0, 6.0, 10.0, 6.0)
-        errorImage = Controls.Image()
-        errorImage.Margin = Thickness(6.0, 6.0, 0.0, 10.0)
-        # errorImage.Source = ImageAwesome.CreateImageSource(
-        #     FontAwesomeIcon.ExclamationCircle,
-        #     Media.Brushes.Red
-        # )
-        errorImage.Width = 14
-        errorImage.Height = 18
-        stack.Children.Add(errorImage)
-        label = Controls.Label()
-        # label.Style = self.FindResource("ctrl")
-        # label.FontSize = 16
-        label.Content = msg
-        label.Margin = Thickness(0.0, 6.0, 0.0, 10.0)
-        stack.Children.Add(label)
-        self.Base.Children.Add(stack)
-        self.button = Controls.Button()
-        # self.button.Style = self.FindResource("wzdbtn")
-        self.button.Click += self.buttonClick
-        self.button.Content = "OK"
-        self.button.Width = 70
-        self.button.Height = 30
-        self.button.Margin = Thickness(0.0, 6.0, 0.0, 12.0)
-        self.Base.Children.Add(self.button)
-        self.ShowDialog()
-
-    def buttonClick(self, s, e):
-        self.Close()
-
-
-class Progress3D(Window):
+class Progress3D(MyDialog):
     def __init__(self, parent):
-        wpf.LoadComponent(self, 'Progress3D.xaml')
-        self.SizeToContent = SizeToContent.WidthAndHeight
-        # self.WindowStartupLocation = WindowStartupLocation.Manual
-        self.Left = parent.Left + parent.ActualWidth/4
-        self.Top = parent.Top + parent.ActualHeight/4
-        self.CancelBtn.Click += self.cancel
-        self.Closed += self.closeHandle
-        self.parent = parent
+        # derived from upstream Progress3D.xaml:
+        MyDialog.__init__(self, parent, '',
+                          title="Convert to 3DS Progress",
+                          btnNames=["Cancel"],
+                          args={"Progressbar left": 100.0,
+                                "Progressbar right": 100.0,
+                                "Progressbar final": 100.0},
+                          handlers={"Cancel": self.closeHandle})
 
     def show(self):
         self.ShowDialog()
 
-    def closeHandle(self, s, e):
+    def closeHandle(self):
         while True:
             allDone = True
             if self.parent.leftPipe is not None:
@@ -221,17 +167,17 @@ class Progress3D(Window):
             print('wait done')
         print('canceled')
 
-    def cancel(self, s, e):
+    def cancel(self):
         print('Progress3D cancel')
-        self.Close()
+        self.top.destroy()
 
     def closeByOthers(self):
         print('Progress3D closeByOthers')
-        self.Dispatcher.BeginInvoke(Action(self.Close))
+        self.top.destroy()
 
 
 def findInfo(info):
-    fileName = info['filename']
+    fileName = info['input']
     command = ['ffprobe', '-i', fileName]
     p = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE,
                          stderr=subprocess.PIPE)
@@ -278,7 +224,7 @@ def findInfo(info):
 
 
 def findFileName(info):
-    fileName = info['filename']
+    fileName = info['input']
     # newStr = fileName.replace('\\','/')
     # print(newStr)
     # matchObj = re.search("([^/]+)\.",newStr)
@@ -291,6 +237,7 @@ def findFileName(info):
         return False
     print(fnameWithoutExt)
     info['outfolder'] = fnameWithoutExt
+    # ^ Purposely use filename as directory.
     return True
 
 
@@ -301,14 +248,73 @@ def seconds2Str(seconds):
     return "%02d:%02d:%02d" % (hour, minute, second)
 
 
-class MyWindow(Window):
-    def __init__(self):
-        wpf.LoadComponent(self, '3DSVideoConverter.xaml')
-        self.InputFile.Drop += self.dropHandler
-        self.ConvertBtn.Click += self.convertHandler
-        self.AboutBtn.Click += self.aboutHandler
+class MyWindow(ttk.Frame):
+    def __init__(self, parent, ap):
+        """
+        Sequential arguments:
+        parent -- the Tk root (should already be set to `tk.Tk()`)
+        ap -- an argparser instance to use as a basis for GUI elements.
+        """
+
+        # self.filename_v = tk.StringVar()
+        ttk.Frame.__init__(self, parent)
+        self.pack(fill=tk.BOTH, expand=True)
+        row = 0
+        wide_width = 30
+
+        # input_l = ttk.Label(self, text="Original video:")
+        # input_l.grid(column=0, row=row, sticky=tk.E)
+        # self.filename_entry = ttk.Entry(
+        #     self,
+        #     width=25,
+        #     textvariable=self.info["input"]
+        # )
+        # self.filename_entry.grid(column=1, columnspan=3, row=row,
+        #                          sticky=tk.W)
+        # row += 1
+        self._labels = {}
+        self._entries = {}
+        self._vars = {}
+        options = parse_args()
+        for k, v in options.items():
+            if False: #(v is True) or (v is False):
+                # Checkbutton(self, ...
+                self._entries[k] = ttk.Checkbutton(text=k,
+                                                   variable=self._vars)
+                self._entries[k].grid(column=0, columnspan=4, row=row,
+                                      sticky=tk.W)
+            else:
+                self._vars[k] = tk.StringVar()
+                self._labels[k] = ttk.Label(self, text="{}:".format(k))
+                self._labels[k].grid(column=0, row=row, sticky=tk.E)
+                self._entries[k] = ttk.Entry(
+                    self,
+                    width=25,
+                    textvariable=self._vars[k]
+                )
+                if v is not None:
+                    self._vars[k].set(v)
+                self._entries[k].grid(column=1, columnspan=3, row=row,
+                                      sticky=tk.W)
+            print("added {}:{}".format(k, v))
+            row += 1
+
+        self.convert_button = ttk.Button(self, text="Convert",
+                                         command=self.convertHandler)
+        self.convert_button.grid(column=1, row=row, sticky=tk.E)
+        self.about_button = ttk.Button(self, text="About",
+                                       command=self.aboutHandler)
+        self.about_button.grid(column=2, row=row, sticky=tk.W)
+        row += 1
+
         self.info = {}
         self.initPipeVars()
+
+    def updateParamsFromWindow(self):
+        for k, v in self._vars.items():
+            self.info[k] = self._vars[k].get().strip()
+        findFileName(self.info)
+        print("* got info: {}".format(self.info))
 
     def initFinalPipeVars(self):
         self.finalPipe = None
@@ -327,31 +333,39 @@ class MyWindow(Window):
         self.rightPipeCancel = False
         self.initFinalPipeVars()
 
-    def dropHandler(self, s, e):
-        pass
-        if e.Data.GetDataPresent(DataFormats.FileDrop):
-            files = e.Data.GetData(DataFormats.FileDrop)
-            self.InputFile.Items.Clear()
-            self.fileInfo.Text = ""
-            self.InputFile.Items.Add(files[0])
-            self.info = {}
-            self.info['filename'] = files[0]
-            if findFileName(self.info) and findInfo(self.info):
-                s = "Duration :\t" + seconds2Str(self.info['seconds'])
-                s += ("\nResolution :\t%dx%d"
-                      % (self.info['width'], self.info['height']))
-                s += "\nBitrate :\t\t" + self.info['bitrate']
-                s += "\nOutput Folder :\t" + self.info['outfolder']
-                self.fileInfo.Text = s
-            pass
+    # def dropHandler(self, s, e):
+    #     pass
+    #     if e.Data.GetDataPresent(DataFormats.FileDrop):
+    #         files = e.Data.GetData(DataFormats.FileDrop)
+    #         self.InputFile.Items.Clear()
+    #         self.fileInfo.Text = ""
+    #         self.InputFile.Items.Add(files[0])
+    #         self.info = {}
+    #         self.info['input'] = files[0]
+    #         if findFileName(self.info) and findInfo(self.info):
+    #             s = "Duration :\t" + seconds2Str(self.info['seconds'])
+    #             s += ("\nResolution :\t%dx%d"
+    #                   % (self.info['width'], self.info['height']))
+    #             s += "\nBitrate :\t\t" + self.info['bitrate']
+    #             s += "\nOutput Folder :\t" + self.info['outfolder']
+    #             self.fileInfo.Text = s
+    #         pass
 
-    def convertHandler(self, s, e):
-        if not ('filename' in self.info.keys()):
-            MyErrorMsgBox(self, 'There is no file to be converted')
+    def convertHandler(self):
+        self.updateParamsFromWindow()
+        filename = self.info.get('input')
+        if (filename is None) or (filename.strip() == ""):
+            messagebox.showerror("Error",
+                                 'There is no file to be converted.')
             return
-        if not os.path.exists(self.info['outfolder']):
-            os.makedirs(self.info['outfolder'])
-        quality = self.Quality.SelectedItem.Content.ToString()
+        outfolder = self.info.get('outfolder')
+        if (outfolder is None) or (outfolder.strip() == ""):
+            messagebox.showerror("Error",
+                                 'The output folder is not set.')
+            return
+        if not os.path.exists(outfolder):
+            os.makedirs(outfolder)
+        quality = self.info.get('quality')
         vq = 6
         if quality.find('VeryHigh') >= 0:
             vq = 2
@@ -392,25 +406,25 @@ class MyWindow(Window):
         print('Done : %d' % self.finalPipeCode)
         if self.finalPipeCode != 0:
             print('Try to remove outfolder!!!')
-            shutil.rmtree(self.info['outfolder'])
+            shutil.rmtree(outfolder)
             print('Removed outfolder!!!')
             if self.finalPipeCancel or \
                     (self.leftPipeCancel and self.rightPipeCancel):
                 pass
             else:
-                MyErrorMsgBox(self, 'Error occured!')
+                messagebox.showerror("Error", 'Conversion failed!')
         elif self.SideBySideCheckBox.IsChecked:
-            os.remove(self.info['outfolder'] + '\\left.avi')
-            os.remove(self.info['outfolder'] + '\\right.avi')
+            os.remove(os.path.join(outfolder, 'left.avi'))
+            os.remove(os.path.join(outfolder, 'right.avi'))
 
-    def aboutHandler(self, sender, event):
+    def aboutHandler(self):
         AboutBox(self)
 
     def convertSideBySideStep1(self, sender, event, params):
         leftOrRight = params[0]
         vq = params[1]
         # command = ['ffmpeg', '-y', '-i',
-        #            self.info['filename'],
+        #            self.info['input'],
         #            '-b:v', self.info['bitrate'],
         #            '-vf',
         #            ('crop='
@@ -422,7 +436,7 @@ class MyWindow(Window):
         crops = {}
         crops['left'] = '480:240:0:0'
         crops['right'] = '480:240:480:0'
-        command = ['ffmpeg', '-y', '-i', self.info['filename'],
+        command = ['ffmpeg', '-y', '-i', self.info['input'],
                    '-vcodec', 'mjpeg', '-q:v', '%d' % vq, '-r', '20',
                    '-vf',
                    ('\"scale=960:240,'
@@ -547,7 +561,7 @@ class MyWindow(Window):
                            outFile]
             else:
                 command = ['ffmpeg', '-y', '-i',
-                           self.info['filename'],
+                           self.info['input'],
                            clipOpt,
                            '-vcodec', 'mjpeg', '-q:v', '%d' % vq,
                            '-r', '20',
@@ -608,7 +622,8 @@ def main():
     global root
     root = tk.Tk()
     root.title("3DS Video Converter (Poikilos' Fork)")
-    MyWindow(root)
+    init_args()
+    MyWindow(root, ap)
     root.mainloop()
 
 
