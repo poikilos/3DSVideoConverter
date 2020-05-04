@@ -18,6 +18,8 @@ import argparse
 from mydialog import MyDialog
 
 gVersionStr = "Version 0.1 (Poikilos' 2020 tkinter fork)"
+testPath = ("/home/owner/Videos/YouTube-archive/3D/3D HD Relaxing Video"
+            " - Magic Forest  - yt3d Youtube 3D-GMkqdhRGkmI.mp4")
 
 try:
     input = raw_input
